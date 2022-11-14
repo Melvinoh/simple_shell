@@ -12,7 +12,7 @@ int main(int argc , char *argv[])
 		user_prompt();
 		
 		line = readline(void);
-		commands = _strtok()
+		commands = tokenizer(line);
 
 
 	}

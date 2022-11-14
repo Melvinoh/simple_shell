@@ -3,7 +3,7 @@
 {
 	char *line = NULL;
 	ssize_t bufsize = 0;
-	if (getline(&line, &bufsize , stdin) == -1)
+	if (_getline(&line, &bufsize,STDIN_FILENO) == -1)
 	{
 		if(feof(stdin))
 		{
