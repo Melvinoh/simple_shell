@@ -17,6 +17,20 @@ typedef struct aliases
 typedef struct builtins
 {
 	char *name;
-	int (*func)(void);
+	int (*func)(char **args);
 } builtins
+
+typedef struct envlist
+{
+	char *str;
+	int len;
+	struct envlist *next;
+} env_list
+
+
+
+
+
+
+/*
 
