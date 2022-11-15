@@ -11,7 +11,7 @@ char **tokenizer(char *line)
 	char **tokens;
 	int i = 0;
 	char *token;
-	int buffer = 1024;
+	ssize_t buffer = 120;
 
 	tokens = malloc(buffer * sizeof(char));
 

@@ -9,7 +9,9 @@
 #include "stdbool.h"
 
 #define BUFFER = 1024
-#define DELIM "( \t\r\n\a)"
+#define DELIM = " :\t\r\n\a"
+
+extern char **environ;
 
 typedef struct aliases
 {

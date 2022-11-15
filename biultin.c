@@ -1,46 +1,26 @@
 #include "shell.h"
 
 /**
- * setenv - function that adds enviroment variable tothe enviroment
- * @args:arguments passed
- * return: pointer to the last node in the list
+ * cd function to change dir
+ * @args - passsed arguments to cd
+ * return: always 1 on success 
  */
-void setenv(**args)
+int cd(char **args)
 {
-	int i = 0;
-	char *var = *args[2];
-	env_list *newenv, *env;
-	env_list **head;
-
-	newenv  = malloc(sizeof(env_list));
-	env = envlist head;
-
-	while (env)
+	if (arg[1] == NULL)
 	{
-		p = start(env->start, var);
-
-		if (p)
-			free(env->str);
-			env->str = malloc(len * sizeof(char));
+		chdir($HOME);
+	} else {
+		if (*agrs[1] == '-')
+		{
+			chdir($OWD);
+		}
+	}else {
+		if(chdir(args[i] != 0))
+		{
+			perror( "hsh" );
+		}
 	}
-
-	if (newenv != NULL)
-	{
-		newenv->str = strdup(*var);
-		newenv->len = strlen(*var);
-		newenv->next = NULL;
-	} else
-	{
-		free(newenv);
-	}
-
-	if (*head == NULL)
-		*head = newenv;
-		return (newenv);
-
-	while (env->next)
-		env = env->next;
-	env->next = newenv;
-	return (newenv);
+	return (1);
 }
 
