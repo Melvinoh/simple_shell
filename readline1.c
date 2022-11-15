@@ -1,5 +1,11 @@
 #include "shell.h";
- char *readline1(void)
+
+/**
+ * readline1 - a function that reads inputline from terminal using getline
+ * return: pointer to line;
+ *
+ */
+char *readline1(void)
 {
 	char *line = NULL;
 	ssize_t bufsize = 0;

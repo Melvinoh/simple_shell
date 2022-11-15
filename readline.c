@@ -51,13 +51,5 @@ char *getline(char *lineptr[], ssize_t *buff ,FILE *stream)
 
 	return lineptr;
 
-
-
 }
-
-
-
-
-
-
 

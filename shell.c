@@ -1,19 +1,24 @@
-#include " stdio.h"
-#include "unstd.h"
-#include " stdlib.h"
-#include "string.h"
-#include "shell.h"
-#include "system.h"
+#include " shell.h"
 
-int main(int argc , char *argv[])
+/**
+ * main - function that runs the shell
+ * @agrc - argument count
+ * @argv - vector of arguments
+ * return: always 0
+ *
+ */
+int main(int argc, char *argv[])
 {
-	while(1)
-	{
+	do {
 		user_prompt();
-		
 		line = readline(void);
-		commands = tokenizer(line);
+		args = tokenizer(line);
+		status = exceute(args);
 
+		free(line);
+		free(args);
 
-	}
+	} while (status);
+
+	return (0);
 }
