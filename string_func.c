@@ -52,4 +52,13 @@ char *find_needle(const char *haystack , const char *needle)
 	return ((char *)haystack);
 }
 
+/**
+ * _strtok - function to split strings according to delim
+ * @line line to be splited
+ * return a pointer to a split
+ */
+char **_strtok(char *line , DELIM)
+{
+
+
 
