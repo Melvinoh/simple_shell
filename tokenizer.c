@@ -1,94 +1,116 @@
 #include "shell.h"
 
 /**
- * **strtow - splits a string into words. Repeat delimiters are ignored
- * @str: the input string
- * @d: the delimeter string
- * Return: a pointer to an array of strings, or NULL on failure
+ * tokenizer - tokenizes a buffer with a delimiter
+ * @buffer: buffer to tokenize
+ * @delimiter: delimiter to tokenize along
+ *
+ * Return: pointer to an array of pointers to the tokens
  */
-
-char **strtow(char *str, char *d)
+char **tokenizer(char *buffer, char *delimiter)
 {
-	int i, j, k, m, numwords = 0;
-	char **s;
+	char **tokens = NULL;
+	size_t i = 0, mcount = 10;
 
-	if (str == NULL || str[0] == 0)
+	if (buffer == NULL)
 		return (NULL);
-	if (!d)
-		d = " ";
-	for (i = 0; str[i] != '\0'; i++)
-		if (!is_delim(str[i], d) && (is_delim(str[i + 1], d) || !str[i + 1]))
-			numwords++;
-
-	if (numwords == 0)
-		return (NULL);
-	s = malloc((1 + numwords) * sizeof(char *));
-	if (!s)
-		return (NULL);
-	for (i = 0, j = 0; j < numwords; j++)
+	tokens = malloc(sizeof(char *) * mcount);
+	if (tokens == NULL)
 	{
-		while (is_delim(str[i], d))
-			i++;
-		k = 0;
-		while (!is_delim(str[i + k], d) && str[i + k])
-			k++;
-		s[j] = malloc((k + 1) * sizeof(char));
-		if (!s[j])
-		{
-			for (k = 0; k < j; k++)
-				free(s[k]);
-			free(s);
-			return (NULL);
-		}
-		for (m = 0; m < k; m++)
-			s[j][m] = str[i++];
-		s[j][m] = 0;
+		perror("Fatal Error");
+		return (NULL);
 	}
-	s[j] = NULL;
-	return (s);
+	while ((tokens[i] = new_strtok(buffer, delimiter)) != NULL)
+	{
+		i++;
+		if (i == mcount)
+		{
+			tokens = _realloc(tokens, &mcount);
+			if (tokens == NULL)
+			{
+				perror("Fatal Error");
+				return (NULL);
+			}
+		}
+		buffer = NULL;
+	}
+	return (tokens);
 }
 
 /**
- * **strtow2 - splits a string into words
- * @str: the input string
- * @d: the delimeter
- * Return: a pointer to an array of strings, or NULL on failure
+ * tokenize - tokenizes a buffer with a delimiter just use for for_child
+ * @line: buffer to tokenize
+ * @delimiter: delimiter to tokenize along
+ * @token_count: token count, size.
+ * Return: pointer to an array of pointers to the tokens
  */
-char **strtow2(char *str, char d)
+char **tokenize(int token_count, char *line, const char *delimiter)
 {
-	int i, j, k, m, numwords = 0;
-	char **s;
+	int i;
+	char **buffer;
+	char *token;
+	char *line_cp;
 
-	if (str == NULL || str[0] == 0)
+	line_cp = _strdup(line);
+	buffer = malloc(sizeof(char *) * (token_count + 1));
+	if (buffer == NULL)
 		return (NULL);
-	for (i = 0; str[i] != '\0'; i++)
-		if ((str[i] != d && str[i + 1] == d) ||
-			(str[i] != d && !str[i + 1]) || str[i + 1] == d)
-			numwords++;
-	if (numwords == 0)
-		return (NULL);
-	s = malloc((1 + numwords) * sizeof(char *));
-	if (!s)
-		return (NULL);
-	for (i = 0, j = 0; j < numwords; j++)
+	token = new_strtok(line_cp, delimiter);
+	for (i = 0; token != NULL; i++)
 	{
-		while (str[i] == d && str[i] != d)
-			i++;
-		k = 0;
-		while (str[i + k] != d && str[i + k] && str[i + k] != d)
-			k++;
-		s[j] = malloc((k + 1) * sizeof(char));
-		if (!s[j])
-		{
-			for (k = 0; k < j; k++)
-				free(s[k]);
-			free(s);
-			return (NULL);
-		}
-		for (m = 0; m < k; m++)
-			s[j][m] = str[i++];
-		s[j][m] = 0;
+		buffer[i] = _strdup(token);
+		token = new_strtok(NULL, delimiter);
 	}
-	s[j] = NULL;
-	return (s);
+	buffer[i] = NULL;
+	free(line_cp);
+	return (buffer);
+}
+
+/**
+ * token_interface - token interface
+ * @line: line get to be tokenized
+ * @delimiter: eny delimiter lie ; % " ", etc.
+ * @token_count: token counter.
+ * Return: tokens
+ **/
+char **token_interface(char *line, const char *delimiter, int token_count)
+{
+	vars_t vars;
+
+	token_count = count_token(line, delimiter);
+	if (token_count == -1)
+	{
+		free(line);
+		return (NULL);
+	}
+	vars.array_tokens = tokenize(token_count, line, delimiter);
+	if (vars.array_tokens == NULL)
+	{
+		free(line);
+		return (NULL);
+	}
+
+	return (vars.array_tokens);
+}
+
+/**
+ * count_token - token's count
+ * @line: string.
+ * @delimiter: delimiter
+ * Return: token's count
+ **/
+int count_token(char *line, const char *delimiter)
+{
+	char *str;
+	char *token;
+	int i;
+
+	str = _strdup(line);
+	if (str == NULL)
+		return (-1);
+	token = new_strtok(str, delimiter);
+	for (i = 0; token != NULL; i++)
+		token = new_strtok(NULL, delimiter);
+	free(str);
+	return (i);
 }

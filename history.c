@@ -1,143 +1,152 @@
 #include "shell.h"
 
 /**
- * get_history_file - gets the history file
- * @info: parameter struct
+ * *add_nodeint - Add node in the beginning
+ * @head: The pointer of the history list.
+ * @str: The string received.
  *
- * Return: allocated string containg history file
+ * Return: On success 1
  */
 
-char *get_history_file(info_t *info)
+void *add_nodeint(history_t **head, char *str)
 {
-	char *buf, *dir;
 
-	dir = _getenv(info, "HOME=");
-	if (!dir)
-		return (NULL);
-	buf = malloc(sizeof(char) * (_strlen(dir) + _strlen(HIST_FILE) + 2));
-	if (!buf)
-		return (NULL);
-	buf[0] = 0;
-	_strcpy(buf, dir);
-	_strcat(buf, "/");
-	_strcat(buf, HIST_FILE);
-	return (buf);
-}
+	history_t *new = malloc(sizeof(history_t));
+	history_t *copy = *head;
 
-/**
- * write_history - creates a file, or appends to an existing file
- * @info: the parameter struct
- *
- * Return: 1 on success, else -1
- */
-int write_history(info_t *info)
-{
-	ssize_t fd;
-	char *filename = get_history_file(info);
-	list_t *node = NULL;
-
-	if (!filename)
-		return (-1);
-
-	fd = open(filename, O_CREAT | O_TRUNC | O_RDWR, 0644);
-	free(filename);
-	if (fd == -1)
-		return (-1);
-	for (node = info->history; node; node = node->next)
+	if (!new)
 	{
-		_putsfd(node->str, fd);
-		_putfd('\n', fd);
+		free_listint(*head);
 	}
-	_putfd(BUF_FLUSH, fd);
-	close(fd);
-	return (1);
+
+	new->str = _strdup(str);
+	if (new->str == NULL)
+	{
+		free_listint(*head);
+	}
+
+	new->next = NULL;
+	if (!*head)
+	{
+		*head = new;
+		return (new);
+	}
+	copy = *head;
+	while (copy->next != NULL)
+	{
+		copy = copy->next;
+	}
+	copy->next = new;
+	return (new);
 }
 
 /**
- * read_history - reads history from file
- * @info: the parameter struct
+ * free_listint - free pointers related with malloc
+ * @head: The pointer of the list
  *
- * Return: histcount on success, 0 otherwise
+ * Return: The number of elements in the list
  */
-int read_history(info_t *info)
+
+void free_listint(history_t *head)
 {
-	int i, last = 0, linecount = 0;
-	ssize_t fd, rdlen, fsize = 0;
-	struct stat st;
-	char *buf = NULL, *filename = get_history_file(info);
+	history_t *delete;
 
-	if (!filename)
-		return (0);
+	if (!head)
+		return;
+	while (head)
+	{
+		delete = head->next;
+		free(head->str);
 
-	fd = open(filename, O_RDONLY);
-	free(filename);
-	if (fd == -1)
-		return (0);
-	if (!fstat(fd, &st))
-		fsize = st.st_size;
-	if (fsize < 2)
-		return (0);
-	buf = malloc(sizeof(char) * (fsize + 1));
-	if (!buf)
-		return (0);
-	rdlen = read(fd, buf, fsize);
-	buf[fsize] = 0;
-	if (rdlen <= 0)
-		return (free(buf), 0);
-	close(fd);
-	for (i = 0; i < fsize; i++)
-		if (buf[i] == '\n')
+		free(head);
+		head = delete;
+	}
+	free(delete);
+}
+
+/**
+ * new_history - Print the list of a single list
+ * @vars: structure with variables.
+ * Return: The number of elements in the list
+ */
+
+void new_history(vars_t *vars)
+{
+	history_t *tmp = vars->history;
+	history_t *tmp2 = vars->history;
+	int i = 0, z = 1;
+	unsigned int counter = 0;
+	char *count;
+
+	if (vars->array_tokens[1] != NULL)
+	{
+		prints_error_msg(vars, ": Command not found: ");
+		print_message(vars->array_tokens[1]);
+		print_message("\n");
+		return;
+	}
+	else
+	{
+		while (tmp)
 		{
-			buf[i] = 0;
-			build_history_list(info, buf + last, linecount++);
-			last = i + 1;
+			tmp = tmp->next;
+			i++;
 		}
-	if (last != i)
-		build_history_list(info, buf + last, linecount++);
-	free(buf);
-	info->histcount = linecount;
-	while (info->histcount-- >= HIST_MAX)
-		delete_node_at_index(&(info->history), 0);
-	renumber_history(info);
-	return (info->histcount);
-}
-
-/**
- * build_history_list - adds entry to a history linked list
- * @info: Structure containing potential arguments. Used to maintain
- * @buf: buffer
- * @linecount: the history linecount, histcount
- *
- * Return: Always 0
- */
-int build_history_list(info_t *info, char *buf, int linecount)
-{
-	list_t *node = NULL;
-
-	if (info->history)
-		node = info->history;
-	add_node_end(&node, buf, linecount);
-
-	if (!info->history)
-		info->history = node;
-	return (0);
-}
-
-/**
- * renumber_history - renumbers the history linked list after changes
- * @info: Structure containing potential arguments. Used to maintain
- *
- * Return: the new histcount
- */
-int renumber_history(info_t *info)
-{
-	list_t *node = info->history;
-	int i = 0;
-
-	while (node)
-	{
-		node->num = i++;
-		node = node->next;
+		while (z < i)
+		{
+			counter++;
+			count = integer_converter(counter);
+			print_message(count);
+			print_message("  ");
+			_puts3(tmp2->str);
+			tmp2 = tmp2->next;
+			z++;
+			free(count);
+		}
+		tmp2 = tmp2->next;
+		vars->invert = tmp2;
+		free_listint(tmp);
+		free_listint(tmp2);
+		return;
 	}
-	return (info->histcount = i);
+}
+/*** WRITES STRING TO STDOUT ***/
+/**
+ * _puts3 - writes a string to standard output
+ * @str: string to write
+ *
+ * Return: number of chars printed or -1 on failure
+ */
+ssize_t _puts3(char *str)
+{
+	ssize_t i, len;
+
+	for (i = 0; str[i]; i++)
+		;
+
+	len = write(1, str, i);
+	if (len != i)
+	{
+		perror("Fatal Error");
+		return (-1);
+	}
+	return (len);
+}
+/**
+ *print_message - print a string to standart output
+ * @str: string to print.
+ * Return: void
+ */
+void print_message(char *str)
+{
+	long num, len;
+
+	num = _strlen(str);
+	len = write(STDOUT_FILENO, str, num);
+	if (len != num)
+
+	{
+		perror("fatal error");
+		exit(1);
+	}
 }
