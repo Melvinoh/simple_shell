@@ -1,45 +1,61 @@
-# ifndef SHELL_H
-# define SHELL_H
+#ifndef SHELL_H
+#define SHELL_H
 
-# include "stdio.h"
-#include "unistd.h"
-#include "string.h"
-#include "sys.h"
-#include "time.h"
-#include "stdbool.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <stdbool.h>
 
-#define BUFFER = 1024
-#define DELIM = " :\t\r\n\a"
-
+/* environment variables */
 extern char **environ;
+extern __sighandler_t signal(int __sig, __sighandler_t __handler);
 
-typedef struct aliases
-{
-	char *alias_name;
-	char *real_name;
-	struct aliases *next;
-} alias;
-
-typedef struct builtins
-{
-	char *name;
-	int (*func)(char **args);
-} builtins
-
-int cd(char **args);
-int _env(char **args);
-int _unsetenv(char **args);
-int _setenv(char **args);
-int _getenv(char **args);
-int _exit(char **args);
-int _alias(char **args);
-int add_alias(char **args);
-int remove_alias(char **args);
-char *getline(char *line[], ssize_t *buffer, FILE *stream);
-char *readline1(void);
-char *handle_builtins(char **args);
+/* handle built ins */
+int checker(char **cmd, char *buf);
+void prompt_user(void);
+void handle_signal(int m);
 char **tokenizer(char *line);
+char *test_path(char **path, char *command);
+char *append_path(char *path, char *command);
+int handle_builtin(char **command, char *line);
+void exit_cmd(char **command, char *line);
 
-#endif
+void print_env(void);
 
+/* string handlers */
+int _strcmp(char *s1, char *s2);
+int _strlen(char *s);
+int _strncmp(char *s1, char *s2, int n);
+char *_strdup(char *s);
+char *_strchr(char *s, char c);
 
+void execution(char *cp, char **cmd);
+char *find_path(void);
+
+/* helper function for efficient free */
+void free_buffers(char **buf);
+
+struct builtin
+{
+	char *env;
+	char *exit;
+} builtin;
+
+struct info
+{
+	int final_exit;
+	int ln_count;
+} info;
+
+struct flags
+{
+	bool interactive;
+} flags;
+
+#endif /* SHELL_H */

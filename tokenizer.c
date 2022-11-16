@@ -1,50 +1,48 @@
 #include "shell.h"
 
 /**
- * tokenizer - gets tokens from input strings using deliminators /' ',:
- * @line - pointer to the line being splited
- * return - pointer to a string
- *
- */
+* tokenizer - creates tokens from given input
+* @line: to be tokenized
+*
+* Return: array of strings
+*/
 char **tokenizer(char *line)
 {
-	char **tokens;
-	int i = 0;
-	char *token;
-	ssize_t buffer = 120;
+	char *buf = NULL, *bufp = NULL, *token = NULL, *delim = " :\t\r\n";
+	char **tokens = NULL;
+	int tokensize = 1;
+	size_t index = 0, flag = 0;
 
-	tokens = malloc(buffer * sizeof(char));
+	buf = _strdup(line);
+	if (!buf)
+		return (NULL);
+	bufp = buf;
 
-	if (!tokens)
+	while (*bufp)
 	{
-		fprintf(stderr, "hsh:memorry alocation error");
-		free(tokens);
-		exit(ERROR_FAILURE);
-	}
-
-	token = strtok(line, DELIM);
-
-	while (token != NULL)
-	{
-		tokens[i] = strdup(token);
-		i++;
-		if (i >= buffer)
+		if (_strchr(delim, *bufp) != NULL && flag == 0)
 		{
-			buffer += buffer;
-			tokens = realloc(tokens, buffer * sizeof(char));
-
-			if (!tokens)
-			{
-				fprintf(stderr, "hsh: memmory allocation error");
-				exit(EXIT_FAILURE);
-				free(tokens);
-			}
-
+			tokensize++;
+			flag = 1;
 		}
-		token = strtok(NULL, DELIM);
+		else if (_strchr(delim, *bufp) == NULL && flag == 1)
+			flag = 0;
+		bufp++;
 	}
-	tokens[i] = NULL;
+	tokens = malloc(sizeof(char *) * (tokensize + 1));
+	token = strtok(buf, delim);
+	while (token)
+	{
+		tokens[index] = _strdup(token);
+		if (tokens[index] == NULL)
+		{
+			free(tokens);
+			return (NULL);
+		}
+		token = strtok(NULL, delim);
+		index++;
+	}
+	tokens[index] = '\0';
+	free(buf);
 	return (tokens);
 }
-
-

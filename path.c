@@ -1,19 +1,17 @@
 #include "shell.h"
 
-/** _paths - function to paths in which command will be searched
- * @args : passed commands to the function
- * return: pointer to paths on success and -1 on failure
- */
-char **_paths(void)
+/**
+* find_path - finds the path from the global enviroment
+* Return: NULL if path is not found or path if path is found.
+*/
+char *find_path(void)
 {
-	char **paths = NULL, **env = environ;
-	int i, p, j;
-	char *var = 'PATH=', *path = NULL;
+	int x;
+	char **env = environ, *path = NULL;
 
-	while (*env[i] != NULL)
+	while (*env)
 	{
-		p = strncmp(*env, var, 5);
-		if (p == 0)
+		if (_strncmp(*env, "PATH=", 5) == 0)
 		{
 			path = *env;
 			while (*path && x < 5)
@@ -21,13 +19,9 @@ char **_paths(void)
 				path++;
 				x++;
 			}
-			paths = tokenizer(path);
-			return (paths);
+			return (path);
 		}
-		i++;
+		env++;
 	}
-	return (-1);
+	return (NULL);
 }
-
-
-
